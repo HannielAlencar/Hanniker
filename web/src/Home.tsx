@@ -3,70 +3,42 @@ import './App.css';
 
 export function Home() {
   const [nome, setNome] = useState("");
-  const [status, setStatus] = useState(""); // Para mensagens de sucesso/erro
+  const [mensagem, setMensagem] = useState("");
 
   const baterPonto = async () => {
-    if (!nome) {
-      setStatus("⚠️ Por favor, digite seu nome.");
-      return;
-    }
-    
-    setStatus("⏳ Registrando ponto...");
+    if (!nome) return setMensagem("Digite seu nome!");
+    setMensagem("Enviando...");
 
     try {
-      // LINK DO RENDER (CONFIRA SE ESTÁ IGUAL AO SEU)
-      const resposta = await fetch('https://hanniker-backend.onrender.com/bater-ponto', {
+      // ⚠️ USEI O LINK QUE VOCÊ DISSE QUE FUNCIONA
+      const response = await fetch('https://hanniker.onrender.com/bater-ponto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome }),
       });
 
-      if (resposta.ok) {
-        setStatus(`✅ Ponto registrado com sucesso para: ${nome}!`);
-        setNome(""); // Limpa o campo
+      if (response.ok) {
+        setMensagem(`✅ Ponto de ${nome} registrado!`);
+        setNome("");
       } else {
-        setStatus("❌ Erro ao registrar. O servidor respondeu com erro.");
+        setMensagem("❌ Erro no servidor.");
       }
-    } catch (erro) {
-      console.error(erro);
-      setStatus("❌ Erro de conexão. O servidor está ligado?");
+    } catch (error) {
+      setMensagem("❌ Erro de conexão (Link errado?).");
     }
   };
 
   return (
     <div className="container">
       <div className="card">
-        <h1>⏰ Hanniker Ponto</h1>
-        <p>Sistema de Registro de Jornada</p>
-        
-        <div style={{ margin: '20px 0' }}>
-          <input
-            type="text"
-            placeholder="Digite seu nome completo..."
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            style={{ padding: '10px', width: '80%', marginBottom: '10px' }}
-          />
-          <br />
-          <button 
-            onClick={baterPonto} 
-            className="btn-bater"
-            style={{ padding: '10px 30px', fontSize: '1.2em', cursor: 'pointer', background: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
-          >
-            Bater Ponto Agora
-          </button>
-        </div>
-
-        {/* Mensagem de Status */}
-        {status && (
-          <p style={{ 
-            marginTop: '15px', 
-            fontWeight: 'bold', 
-            color: status.includes('✅') ? 'green' : (status.includes('⏳') ? 'blue' : 'red') 
-          }}>
-            {status}
-          </p>
-        )}
+        <h1>⏰ Ponto Eletrônico</h1>
+        <input 
+          placeholder="Seu Nome" 
+          value={nome} 
+          onChange={e => setNome(e.target.value)} 
+        />
+        <button onClick={baterPonto}>Bater Ponto</button>
+        <p>{mensagem}</p>
       </div>
     </div>
   );
