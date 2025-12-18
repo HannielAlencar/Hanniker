@@ -10,14 +10,13 @@ export function Home() {
     setMensagem("Enviando...");
 
     try {
-      // ⚠️ USEI O LINK QUE VOCÊ DISSE QUE FUNCIONA
-      const response = await fetch('https://hanniker.onrender.com/bater-ponto', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome }),
-      });
+  const resposta = await fetch('https://hanniker.onrender.com/bater-ponto', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ nome }),
+});
 
-      if (response.ok) {
+      if (resposta.ok) {
         setMensagem(`✅ Ponto de ${nome} registrado!`);
         setNome("");
       } else {

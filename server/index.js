@@ -59,4 +59,15 @@ app.post('/usuarios', async (req, res) => {
   }
 });
 
+app.get('/usuarios', async (req, res) => {
+  try {
+    // Busca todos os usuários (exceto a senha, por segurança)
+    const resultado = await pool.query('SELECT id, nome, email, cargo, matricula, cpf FROM usuarios ORDER BY id DESC');
+    res.json(resultado.rows);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: 'Erro ao buscar usuários' });
+  }
+});
+
 app.listen(port, () => console.log(`Rodando na porta ${port}`));
