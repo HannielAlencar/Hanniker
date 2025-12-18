@@ -4,81 +4,81 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
-// O Render diz qual porta usar. Se não disser, usa a 3000.
+// Usa a porta que o Render manda ou a 3000
 const port = process.env.PORT || 3000;
 
-// Middlewares
+// Permite que o site na Vercel fale com este servidor
 app.use(cors());
 app.use(express.json());
 
-// --- Configuração do Banco de Dados ---
-const connectionString = process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-
+// Conexão com o Banco (Funciona no PC e na Nuvem)
 const pool = new Pool({
-  connectionString: connectionString,
-  // O Neon/Render exige SSL (criptografia). O local geralmente não.
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // Obrigatório para o Render/Neon
 });
 
-// --- Rotas ---
-
-// 1. Rota de Teste (Para ver se o servidor está online)
+// --- ROTA 1: Teste ---
 app.get('/', (req, res) => {
-  res.json({ mensagem: 'Servidor Hanniker Online! 🚀' });
+  res.json({ mensagem: 'Servidor Hanniker Online e Pronto! 🚀' });
 });
 
-// 2. Rota para Bater Ponto
+// --- ROTA 2: Bater Ponto ---
 app.post('/bater-ponto', async (req, res) => {
   const { nome } = req.body;
-  if (!nome) return res.status(400).json({ erro: 'Nome é obrigatório' });
+  
+  if (!nome) {
+    return res.status(400).json({ erro: 'O nome é obrigatório para bater o ponto.' });
+  }
 
   try {
     const resultado = await pool.query(
       'INSERT INTO pontos (nome, data_hora) VALUES ($1, NOW()) RETURNING *',
       [nome]
     );
-    res.status(201).json({ mensagem: 'Ponto registrado!', ponto: resultado.rows[0] });
+    console.log("Ponto registrado:", resultado.rows[0]);
+    res.status(201).json({ mensagem: 'Sucesso!', ponto: resultado.rows[0] });
   } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: 'Erro ao registrar ponto' });
+    console.error("Erro no banco:", erro);
+    res.status(500).json({ erro: 'Erro ao salvar no banco de dados.' });
   }
 });
 
-// 3. Rota para Listar Pontos (Opcional, bom para debug)
+// --- ROTA 3: Listar Pontos ---
 app.get('/pontos', async (req, res) => {
   try {
-    const resultado = await pool.query('SELECT * FROM pontos ORDER BY data_hora DESC');
+    const resultado = await pool.query('SELECT * FROM pontos ORDER BY data_hora DESC LIMIT 50');
     res.json(resultado.rows);
   } catch (erro) {
-    res.status(500).json({ erro: 'Erro ao buscar pontos' });
+    res.status(500).json({ erro: 'Erro ao buscar histórico.' });
   }
 });
 
-// 4. Rota para Cadastrar Usuários (FALTAVA ESSA!) ⚠️
+// --- ROTA 4: Cadastro de Usuários (Com Senha) ---
 app.post('/usuarios', async (req, res) => {
+  // Agora recebemos a SENHA também
   const { nome, email, senha, cargo, matricula, cpf } = req.body;
 
   try {
     // Verifica se já existe
-    const usuarioExistente = await pool.query('SELECT * FROM usuarios WHERE email = $1 OR cpf = $2', [email, cpf]);
-    if (usuarioExistente.rows.length > 0) {
-      return res.status(400).json({ erro: 'Usuário já cadastrado (Email ou CPF)' });
+    const duplicado = await pool.query('SELECT * FROM usuarios WHERE email = $1 OR cpf = $2', [email, cpf]);
+    if (duplicado.rows.length > 0) {
+      return res.status(400).json({ erro: 'Email ou CPF já cadastrados.' });
     }
 
-    const novoUsuario = await pool.query(
+    // Salva com a senha
+    const novo = await pool.query(
       `INSERT INTO usuarios (nome, email, senha, cargo, matricula, cpf) 
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, nome, email, cargo`,
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, nome`,
       [nome, email, senha, cargo, matricula, cpf]
     );
 
-    res.status(201).json(novoUsuario.rows[0]);
-  } catch (error) {
-    console.error('Erro no cadastro:', error);
-    res.status(500).json({ erro: 'Erro interno ao cadastrar' });
+    res.status(201).json({ mensagem: "Usuário criado!", usuario: novo.rows[0] });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: 'Erro interno ao cadastrar usuário.' });
   }
 });
 
-// Inicia o Servidor
 app.listen(port, () => {
   console.log(`🚀 Servidor rodando na porta ${port}`);
 });
