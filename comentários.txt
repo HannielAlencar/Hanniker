@@ -1,0 +1,2 @@
+Banco vinculado ao neon
+backend vinculado ao render

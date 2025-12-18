@@ -11,12 +11,15 @@ app.use(cors());
 app.use(express.json());
 
 // Configuração do PostgreSQL
+const isProduction = process.env.NODE_ENV === 'production';
+
+const connectionString = process.env.DATABASE_URL 
+  ? process.env.DATABASE_URL // Se tiver link da nuvem, usa ele
+  : `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`; // Senão, usa local
+
 const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'hanniker_ponto',
-  password: process.env.DB_PASSWORD || '1234',
-  port: process.env.DB_PORT || 5432,
+  connectionString: connectionString,
+  ssl: isProduction ? { rejectUnauthorized: false } : false // O Neon exige SSL (segurança)
 });
 
 // Rota para bater ponto

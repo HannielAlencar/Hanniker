@@ -1,60 +1,24 @@
-import { useState } from 'react'; 
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { Home } from './Home';
+import { Cadastro } from './cadastro'; 
 import './App.css';
 
 function App() {
-  const [nome, setNome] = useState("");
+  return (
+    <BrowserRouter>
+      {/* Barra de Navegação */}
+      <nav style={{ padding: '15px', background: '#2c3e50', marginBottom: '20px', display: 'flex', gap: '20px', justifyContent: 'center' }}>
+        <Link to="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏠 Início</Link>
+        <Link to="/cadastro" style={{ color: '#ffd700', textDecoration: 'none', fontWeight: 'bold' }}>➕ Cadastrar</Link>
+      </nav>
 
-  const [mensagem, setMensagem] = useState("");
-
-  const baterPonto = async () => {
-    if (!nome) {
-      setMensagem("Por favor, insira seu nome.");
-      return;
-}
-setMensagem("Registrando...");
-
-    try { 
-      const resposta = await fetch('http://localhost:3000/bater-ponto', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nome }),
-      });
-      
-      if (resposta.ok) {
-        setMensagem(`✅ Ponto de ${nome} registrado!`);
-        setNome(""); 
-      }else {
-        setMensagem("❌ Falha ao registrar o ponto.");
-      }
-    } catch (erro) {
-      setMensagem("❌ Erro de rede ao registrar o ponto.");
-    }
-  };
-    return (
-    <div className="container">
-    <div className="card">
-      <h1>Hanniker Ponto</h1>
-      <p>Digite seu nome para resgistrar a entrada.</p>
-
-      {}
-      <input
-        type="text"
-        placeholder="Seu nome"
-        value={nome}
-        onChange={(e) => setNome(e.target.value)}
-      />
-      <button onClick={baterPonto} className="btn-bater">
-        Bater Ponto
-        </button>
-
-        {mensagem && <p className="mensagem">{mensagem}</p>}
-      </div>
-    </div>
-  )
+      {/* Definição das Rotas */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
-
-
+export default App;

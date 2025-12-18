@@ -29,14 +29,14 @@ export function Cadastro () {
         return;
         }
     
-    try {
-        const resposta = await fetch('http://localhost:3000/cadastrar-usuario', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(novoUsuario),
-        });
+try {
+    const resposta = await fetch('https://hanniker-backend.onrender.com/usuarios', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novoUsuario),
+    });
 
         if (resposta.ok) {
             setMensagem(`✅ Usuário ${novoUsuario.nome} cadastrado com sucesso!`);
