@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { Home } from './Home';
-import { Cadastro } from './cadastro'; 
+import { Home } from './Home'; // Importa a Home que criámos no passo 1
+import { Cadastro } from './cadastro'; // Importa o Cadastro que já existe
 import './App.css';
 
 function App() {
