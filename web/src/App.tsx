@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Home } from './Home';
-import { Cadastro } from './cadastro';
-import { Login } from './Login.tsx';
+import { Cadastro } from './cadastro'; // Note: se o arquivo for cadastro.tsx (minusculo), mantenha assim.
+import { Login } from './Login';
 import './App.css';
 
 function App() {
@@ -21,12 +21,10 @@ function App() {
     setPagina("home");
   };
 
-  
   if (!usuario) {
     return <Login />;
   }
 
-  // Se TIVER usuário, mostra o Sistema (Menu + Página escolhida)
   return (
     <div>
       <nav className="navbar" style={{ padding: '15px', background: '#f4f4f4', display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px', borderRadius: '8px' }}>
@@ -36,7 +34,6 @@ function App() {
           Início
         </button>
         
-        {/* Só Gestor/Admin vê o botão de cadastro */}
         {(usuario.cargo === 'admin' || usuario.cargo === 'gestor') && (
           <button onClick={() => setPagina('cadastro')} style={{padding: '5px 10px'}}>
             Cadastrar Equipe
