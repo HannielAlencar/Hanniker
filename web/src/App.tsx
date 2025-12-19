@@ -1,23 +1,56 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { Home } from './Home.tsx'; 
-import { Cadastro } from './cadastro.tsx'; 
+import { useState, useEffect } from 'react';
+import { Home } from './Home';
+import { Cadastro } from './cadastro';
+import { Login } from './Login.tsx';
 import './App.css';
 
 function App() {
+  const [pagina, setPagina] = useState("home");
+  const [usuario, setUsuario] = useState<any>(null);
+
+  useEffect(() => {
+    const userSalvo = localStorage.getItem('usuario_hanniker');
+    if (userSalvo) {
+      setUsuario(JSON.parse(userSalvo));
+    }
+  }, []);
+
+  const sair = () => {
+    localStorage.removeItem('usuario_hanniker');
+    setUsuario(null);
+    setPagina("home");
+  };
+
+  
+  if (!usuario) {
+    return <Login />;
+  }
+
+  // Se TIVER usuário, mostra o Sistema (Menu + Página escolhida)
   return (
-    <BrowserRouter>
-      {/* Barra de Navegação */}
-      <nav style={{ padding: '15px', background: '#2c3e50', marginBottom: '20px', display: 'flex', gap: '20px', justifyContent: 'center' }}>
-        <Link to="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏠 Início</Link>
-        <Link to="/cadastro" style={{ color: '#ffd700', textDecoration: 'none', fontWeight: 'bold' }}>➕ Cadastrar</Link>
+    <div>
+      <nav className="navbar" style={{ padding: '15px', background: '#f4f4f4', display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px', borderRadius: '8px' }}>
+        <span>👤 <strong>{usuario.nome}</strong></span>
+        
+        <button onClick={() => setPagina('home')} style={{padding: '5px 10px'}}>
+          Início
+        </button>
+        
+        {/* Só Gestor/Admin vê o botão de cadastro */}
+        {(usuario.cargo === 'admin' || usuario.cargo === 'gestor') && (
+          <button onClick={() => setPagina('cadastro')} style={{padding: '5px 10px'}}>
+            Cadastrar Equipe
+          </button>
+        )}
+        
+        <button onClick={sair} style={{ marginLeft: 'auto', background: '#ff4d4d', color: 'white', border: 'none', padding: '5px 15px', borderRadius: '4px', cursor: 'pointer' }}>
+          Sair
+        </button>
       </nav>
 
-      {/* Definição das Rotas */}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/cadastro" element={<Cadastro />} />
-      </Routes>
-    </BrowserRouter>
+      {pagina === 'home' && <Home usuario={usuario} />}
+      {pagina === 'cadastro' && <Cadastro />}
+    </div>
   );
 }
 
